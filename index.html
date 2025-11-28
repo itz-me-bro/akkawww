@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sister Answers App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .app-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: #ffffffee;
+      border: 2px solid #ffcdd2;
+      color: #b31255;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, #ff4b6e, #c2185b);
+      color: white;
+      border-color: #c2185b;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+      background: #ffffffee;
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 24px 20px 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #ffeff5;
+      color: #cc1952;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      line-height: 1.2;
+      margin-bottom: 8px;
+      color: #b31255;
+      text-align: center;
+    }
+
+    h1 span {
+      display: block;
+      font-size: 1.15rem;
+      color: #ff4b6e;
+      margin-top: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #555;
+      font-size: 0.95rem;
+      margin-bottom: 18px;
+    }
+
+    .heart {
+      font-size: 34px;
+      text-align: center;
+      margin-bottom: 16px;
+      animation: pulse 1.4s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    .message {
+      background: #fff5f8;
+      border-left: 4px solid #ff4b6e;
+      padding: 14px 14px 14px 12px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: #444;
+      margin-bottom: 18px;
+    }
+
+    .message strong {
+      color: #c2185b;
+    }
+
+    .questions-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #b31255;
+      font-size: 1rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #b31255;
+      font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      padding: 10px 12px;
+      border: 1.5px solid #ffcdd2;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      background: #ffffff;
+      color: #333;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #ff4b6e;
+      box-shadow: 0 0 0 3px rgba(255, 75, 110, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 70px;
+      font-family: inherit;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #ff4b6e, #c2185b);
+      color: white;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 8px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 75, 110, 0.3);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .message-alert {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+      margin-bottom: 12px;
+    }
+
+    .message-alert.success {
+      background: #c8e6c9;
+      color: #2e7d32;
+      border-left: 4px solid #4caf50;
+      display: block;
+    }
+
+    .message-alert.error {
+      background: #ffcdd2;
+      color: #c62828;
+      border-left: 4px solid #f44336;
+      display: block;
+    }
+
+    .responses-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .response-card {
+      background: #fff5f8;
+      border-left: 4px solid #ff4b6e;
+      padding: 14px;
+      border-radius: 10px;
+    }
+
+    .response-card h3 {
+      color: #b31255;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .response-card p {
+      color: #555;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .response-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .response-date {
+      font-size: 0.8rem;
+      color: #999;
+    }
+
+    .delete-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.2s;
+    }
+
+    .delete-btn:hover {
+      background: #d32f2f;
+    }
+
+    .loading {
+      text-align: center;
+      color: #b31255;
+      font-weight: 600;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #999;
+      padding: 20px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .footer span {
+      color: #e91e63;
+    }
+
+    @media (min-width: 600px) {
+      .card {
+        padding: 28px 30px 22px;
+      }
+      h1 {
+        font-size: 2.3rem;
+      }
+      .subtitle {
+        font-size: 1rem;
+      }
+      .responses-container {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const API_URL = 'http://localhost:5000/api/answers';
+
+    function AnswerForm() {
+      const [formData, setFormData] = React.useState({
+        q1: '',
+        q2: '',
+        q3: '',
+        q4: '',
+        q5: '',
+        q6: '',
+        q7: '',
+      });
+      const [message, setMessage] = React.useState('');
+      const [messageType, setMessageType] = React.useState('');
+      const [isLoading, setIsLoading] = React.useState(false);
+
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+          ...prev,
+          [name]: value,
+        }));
+      };
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setMessage('');
+
+        const submissionData = {
+          question1: formData.q1.trim(),
+          question2: formData.q2.trim(),
+          question3: formData.q3.trim(),
+          question4: formData.q4.trim(),
+          question5: formData.q5.trim(),
+          question6: formData.q6.trim(),
+          question7: formData.q7.trim(),
+        };
+
+        try {
+          const response = await fetch(`${API_URL}/submit`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(submissionData),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            setMessageType('success');
+            setMessage('✅ ' + result.message);
+            setFormData({
+              q1: '',
+              q2: '',
+              q3: '',
+              q4: '',
+              q5: '',
+              q6: '',
+              q7: '',
+            });
+          } else {
+            setMessageType('error');
+            setMessage('❌ ' + result.message);
+          }
+        } catch (error) {
+          setMessageType('error');
+          setMessage('❌ Error: Make sure backend is running on http://localhost:5000');
+          console.error('Error:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      return (
+        <div className="card">
+          <div className="badge">For my college icchhina akka</div>
+
+          <h1>
+            I Love You, Akka..
+            <span>You were there when no one else did.. 💗</span>
+          </h1>
+
+          <p className="subtitle">
+            Edo naaku tochinattu oka chinna gift anthey..answers correct ga ivvu...
+          </p>
+
+          <div className="heart">❤️</div>
+
+          <section className="message">
+            <p>
+              <strong>Ammaluuu...</strong><br />
+              Thank you..thank you for everything..
+              Every moment you supported me..defended me..saved me from everything..
+              Thank you for being the only person who understood me completely when others didn't even care to..
+              Thank you for being my little secret keeper..
+              Thank you for being with me akka..
+              Thank you for being my akka..amma..🥺
+              Thank you for being in my life..
+            </p>
+          </section>
+
+          <section>
+            <h2 className="questions-title"></h2>
+
+            {message && (
+              <div className={`message-alert ${messageType}`}>
+                {message}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="q1">1. One thing you like in me?</label>
+                <input
+                  type="text"
+                  id="q1"
+                  name="q1"
+                  value={formData.q1}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="q2">2. Intiki eppudu teesukelthunnav nannu mari?</label>
+                <input
+                  type="text"
+                  id="q2"
+                  name="q2"
+                  value={formData.q2}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="q3">3. What is your favorite memory of us?</label>
+                <textarea
+                  id="q3"
+                  name="q3"
+                  value={formData.q3}
+                  onChange={handleChange}
+                  required
+                ></textarea>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="q4">4. If you could relive one day of us which day would it be?</label>
+                <input
+                  type="text"
+                  id="q4"
+                  name="q4"
+                  value={formData.q4}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="q5">5. One thing you wished for but never mentioned?</label>
+                <input
+                  type="text"
+                  id="q5"
+                  name="q5"
+                  value={formData.q5}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="q6">6. One thing you want me to change?</label>
+                <textarea
+                  id="q6"
+                  name="q6"
+                  value={formData.q6}
+                  onChange={handleChange}
+                  required
+                ></textarea>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="q7">7. Undipothavaaa..</label>
+                <textarea
+                  id="q7"
+                  name="q7"
+                  value={formData.q7}
+                  onChange={handleChange}
+                  required
+                ></textarea>
+              </div>
+
+              <button type="submit" className="submit-btn" disabled={isLoading}>
+                {isLoading ? '⏳ Submitting...' : '📤 Submit My Answers'}
+              </button>
+            </form>
+          </section>
+
+          <div className="footer">
+            Prematho,<br />
+            <span>Ni chetta kuppa lo dorikina tammudu..</span>
+          </div>
+        </div>
+      );
+    }
+
+    function ResponsesViewer() {
+      const [responses, setResponses] = React.useState([]);
+      const [isLoading, setIsLoading] = React.useState(true);
+      const [message, setMessage] = React.useState('');
+
+      React.useEffect(() => {
+        fetchResponses();
+      }, []);
+
+      const fetchResponses = async () => {
+        setIsLoading(true);
+        setMessage('');
+
+        try {
+          const response = await fetch(API_URL);
+          const result = await response.json();
+
+          if (result.success) {
+            setResponses(result.data);
+          } else {
+            setMessage('❌ Error fetching responses');
+          }
+        } catch (error) {
+          setMessage('❌ Error: Make sure backend is running on http://localhost:5000');
+          console.error('Error:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      const deleteResponse = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this response?')) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            setResponses(responses.filter(r => r._id !== id));
+            setMessage('✅ Response deleted successfully');
+          } else {
+            setMessage('❌ Error deleting response');
+          }
+        } catch (error) {
+          setMessage('❌ Error deleting response');
+          console.error('Error:', error);
+        }
+      };
+
+      const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      };
+
+      if (isLoading) {
+        return <div className="card"><div className="loading">⏳ Loading responses...</div></div>;
+      }
+
+      return (
+        <div className="card">
+          <h1 style={{ textAlign: 'center', marginBottom: '16px' }}>
+            All Sister Responses 💌
+          </h1>
+
+          {message && (
+            <div className={`message-alert ${message.includes('✅') ? 'success' : 'error'}`}>
+              {message}
+            </div>
+          )}
+
+          {responses.length === 0 ? (
+            <div className="no-data">
+              No responses yet. Ask your sister to fill out the form! 💕
+            </div>
+          ) : (
+            <div>
+              <p style={{ color: '#666', textAlign: 'center', marginBottom: '16px', fontSize: '0.95rem' }}>
+                Total responses: <strong>{responses.length}</strong>
+              </p>
+
+              <div className="responses-container">
+                {responses.map((response, idx) => (
+                  <div key={response._id} className="response-card">
+                    <div className="response-header">
+                      <strong style={{ color: '#b31255' }}>Response #{idx + 1}</strong>
+                      <button className="delete-btn" onClick={() => deleteResponse(response._id)}>
+                        🗑️ Delete
+                      </button>
+                    </div>
+
+                    <p className="response-date">
+                      Submitted: {formatDate(response.createdAt)}
+                    </p>
+
+                    <h3>Q1: Most annoying yet cute thing</h3>
+                    <p>{response.question1}</p>
+
+                    <h3 style={{ marginTop: '8px' }}>Q2: Movie scenario</h3>
+                    <p>{response.question2}</p>
+
+                    <h3 style={{ marginTop: '8px' }}>Q3: Favorite crazy memory</h3>
+                    <p>{response.question3}</p>
+
+                    <h3 style={{ marginTop: '8px' }}>Q4: Funny nickname</h3>
+                    <p>{response.question4}</p>
+
+                    <h3 style={{ marginTop: '8px' }}>Q5: Who starts fights?</h3>
+                    <p>{response.question5}</p>
+
+                    <h3 style={{ marginTop: '8px' }}>Q6: Perfect siblings day</h3>
+                    <p>{response.question6}</p>
+
+                    <h3 style={{ marginTop: '8px' }}>Q7: Secret love confession</h3>
+                    <p>{response.question7}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [currentView, setCurrentView] = React.useState('form');
+
+      return (
+        <div className="app-container">
+          <div className="nav-tabs">
+            <button
+              className={`nav-btn ${currentView === 'form' ? 'active' : ''}`}
+              onClick={() => setCurrentView('form')}
+            >
+              📝 Ask Sister
+            </button>
+            <button
+              className={`nav-btn ${currentView === 'responses' ? 'active' : ''}`}
+              onClick={() => setCurrentView('responses')}
+            >
+              💌 View Responses
+            </button>
+          </div>
+
+          {currentView === 'form' ? <AnswerForm /> : <ResponsesViewer />}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
